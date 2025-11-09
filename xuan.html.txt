@@ -1,0 +1,333 @@
+
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萱之祝福 - 表白弹窗生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f9c5d1, #fce4ec);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #8a4b76;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #e91e63;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #9c27b0;
+        }
+        
+        .message-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .message-btn {
+            background: linear-gradient(45deg, #e91e63, #9c27b0);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .custom-message {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #e91e63;
+            font-size: 1rem;
+            resize: none;
+            margin-bottom: 15px;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(45deg, #ff4081, #e91e63);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* 弹窗样式 */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .popup.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .popup-content {
+            background: linear-gradient(135deg, #f8bbd9, #f48fb1);
+            width: 90%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            transform: scale(0.7);
+            transition: transform 0.5s ease;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            color: #880e4f;
+        }
+        
+        .popup.active .popup-content {
+            transform: scale(1);
+        }
+        
+        .popup h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #ad1457;
+        }
+        
+        .popup p {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #880e4f;
+            cursor: pointer;
+        }
+        
+        .hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: #e91e63;
+            opacity: 0;
+            animation: float 5s linear infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .petals {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .petal {
+            position: absolute;
+            background-color: #ffebee;
+            border-radius: 50% 0 50% 50%;
+            transform: rotate(45deg);
+            opacity: 0;
+            animation: fall 10s linear infinite;
+        }
+        
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        footer {
+            margin-top: 30px;
+            color: #8a4b76;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>萱之祝福 ❤</h1>
+        <p class="subtitle">生成专属表白弹窗，传递你的心意</p >
+        
+        <div class="message-options">
+            <button class="message-btn" data-message="萱草忘忧，愿你每天无忧无虑，笑容如花">祝福一</button>
+            <button class="message-btn" data-message="萱花绽放，愿你的生活如花般绚烂多彩">祝福二</button>
+            <button class="message-btn" data-message="萱心相随，愿我们的情谊如萱草般坚韧长久">祝福三</button>
+            <button class="message-btn" data-message="萱意绵绵，愿幸福如春风般时刻围绕着你">祝福四</button>
+            <button class="message-btn" data-message="萱草芬芳，愿你的人生道路充满馨香与美好">祝福五</button>
+        </div>
+        
+        <div class="custom-message">
+            <textarea id="customText" placeholder="或者，在这里写下你专属的祝福语..."></textarea>
+            <button class="generate-btn" id="generateBtn">生成表白弹窗</button>
+        </div>
+    </div>
+    
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <button class="close-btn" id="closeBtn">×</button>
+            <h2>给萱</h2>
+            <p id="popupMessage">萱草忘忧，愿你每天无忧无虑，笑容如花</p >
+            <div class="hearts" id="hearts"></div>
+            <div class="petals" id="petals"></div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>用心制作每一份祝福 ❤ | 萱之祝福生成器</p >
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageButtons = document.querySelectorAll('.message-btn');
+            const generateBtn = document.getElementById('generateBtn');
+            const popup = document.getElementById('popup');
+            const closeBtn = document.getElementById('closeBtn');
+            const popupMessage = document.getElementById('popupMessage');
+            const customText = document.getElementById('customText');
+            const heartsContainer = document.getElementById('hearts');
+            const petalsContainer = document.getElementById('petals');
+            
+            // 预设祝福语按钮点击事件
+            messageButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    customText.value = this.getAttribute('data-message');
+                });
+            });
+            
+            // 生成弹窗按钮点击事件
+            generateBtn.addEventListener('click', function() {
+                let message = customText.value.trim();
+                
+                if (message === '') {
+                    alert('萱好好休息');
+                    return;
+                }
+                
+                // 如果没有以"萱"开头，自动添加
+                if (!message.startsWith('萱')) {
+                    message = '萱' + message;
+                }
+                
+                popupMessage.textContent = message;
+                popup.classList.add('active');
+                
+                // 创建飘落的心形
+                createHearts();
+                createPetals();
+            });
+            
+            // 关闭弹窗
+            closeBtn.addEventListener('click', function() {
+                popup.classList.remove('active');
+            });
+            
+            // 点击弹窗外部关闭
+            popup.addEventListener('click', function(e) {
+                if (e.target === popup) {
+                    popup.classList.remove('active');
+                }
+            });
+            
+            // 创建飘落的心形
+            function createHearts() {
+                heartsContainer.innerHTML = '';
+                for (let i = 0; i < 20; i++) {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    heart.innerHTML = '❤';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    hea
